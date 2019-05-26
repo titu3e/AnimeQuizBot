@@ -1,1 +1,1 @@
-bot: python3 anime_quiz.py
+python3 anime_quiz.py
