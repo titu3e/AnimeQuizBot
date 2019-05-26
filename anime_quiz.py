@@ -3,6 +3,9 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 import random
 import logging
+import pandas as pd
+
+MAX_TITLES_COUNT = 5722
 
 bot = telegram.Bot(token = '672161416:AAF1Ln4gg_J4QH2nS9pDpLT-H6x_gsrYJW8')
 
@@ -10,57 +13,73 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-##global_update = None
-last = ''
-score = 0
-count = 0
+# global_update = None
+db = pd.read_csv('anime.csv')
+last = {}
+score = {}
+count = {}
+
+def get_title_from_db(index):
+    return db['title_english'][index]
+
+def get_image_from_db(index):
+    return db['image_url'][index]
 
 def ask(update, context):
     global last
-    chat_id = update.message.chat_id
-    variants = ['Beyond the boundary', 'Charlotte', 'Your name', 'Plastic memories']
-    rnd = random.randint(0, 3)
-##    bot.send_photo(chat_id=chat_id, photo=open('/home/tukan-king/Pictures/{}.jpg'.format(variants[rnd]), 'rb'))
-    last = variants[rnd]
+    chat_id = update.message.from_user['id']
+    random_indexes = [0 for i in range(4)]
+    title_variants = ['' for i in range(4)]
+    image_variants = ['' for i in range(4)]
+    for i in range(4):
+        random_indexes[i] = random.randint(0, MAX_TITLES_COUNT)
+        title_variants[i] = get_title_from_db(random_indexes[i])
+        image_variants[i] = get_image_from_db(random_indexes[i])
+        temp = image_variants[i]
+        temp_arr = temp.split('/')
+        temp = "https://cdn.myanimelist.net"
+        for j in range(3, 7):
+            temp += '/'
+            temp += temp_arr[j]
+        image_variants[i] = temp
+    correct_answer = random.randint(0, 3)
+    bot.send_photo(chat_id = chat_id, photo = image_variants[correct_answer])
+    last[chat_id] = title_variants[correct_answer]
     keyboard = [
-        [InlineKeyboardButton('Beyond the boundary', callback_data = 'Beyond the boundary'), InlineKeyboardButton('Charlotte', callback_data = 'Charlotte')],
-        [InlineKeyboardButton('Your name', callback_data = 'Your name'), InlineKeyboardButton('Plastic memories', callback_data = 'Plastic memories')]
+
+        [InlineKeyboardButton(title_variants[0], callback_data = title_variants[0]), InlineKeyboardButton(title_variants[1], callback_data = title_variants[1])],
+        [InlineKeyboardButton(title_variants[2], callback_data = title_variants[2]), InlineKeyboardButton(title_variants[3], callback_data = title_variants[3])]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
 def start(update, context):
-##    global_update = update
-    chat_id = update.message.chat_id
+    chat_id = update.message.from_user['id']
+    print(chat_id)
+    count[chat_id] = 0
+    score[chat_id] = 0
     context.bot.send_message(chat_id=update.message.chat_id, text="Welcome to Anime Quiz. Let's start :)")
     ask(update, context)
-##    variants = ['Beyond the boundary', 'Charlotte', 'Your name', 'Plastic memories']
-##    rnd = random.randint(0, 3)
-##    bot.send_photo(chat_id=chat_id, photo=open('/home/tukan-king/Pictures/{}.jpg'.format(variants[rnd]), 'rb'))
-##    keyboard = [
-##        [InlineKeyboardButton('Beyond the boundary', callback_data = 'Beyond the boundary'), InlineKeyboardButton('Charlotte', callback_data = 'Charlotte')],
-##        [InlineKeyboardButton('Your name', callback_data = 'Your name'), InlineKeyboardButton('Plastic memories', callback_data = 'Plastic memories')]
-##    ]
-##    reply_markup = InlineKeyboardMarkup(keyboard)
-##    update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
 def user_result(update, context):
     global score
     global count
     query = update.callback_query
-    count += 1
-    if(last == query.data):
-        score += 1
-    query.edit_message_text(text="You chose: {} \nThe answer is: {} \nThe score is {}/{} \nDo you want to /continue ? \nOr /clear ?".format(query.data, last, score, count))
-
-##    global_update.message.reply_text('Do you want to /continue ?')
+    chat_id = update.callback_query.from_user['id']
+    print(chat_id)
+    print()
+    count[chat_id] += 1
+    if(last[chat_id] == query.data):
+        score[chat_id] += 1
+    query.edit_message_text(text="You chose: {} \nThe answer is: {} \nThe score is {}/{} \nDo you want to /continue ? \nOr /clear ?".format(query.data, last[chat_id], score[chat_id], count[chat_id]))
 
 def clear(update, context):
     global count
     global score
-    count = 0
-    score = 0
-    update.message.reply_text(text="The score is {}/{} \nDo you want to /continue ? \nOr /clear ?".format(score, count))
+    chat_id = update.message.from_user['id']
+    count[chat_id] = 0
+    score[chat_id] = 0
+    update.message.reply_text(text="The score is {}/{} \nDo you want to /continue ? \nOr /clear ?".format(score[chat_id], count[chat_id]))
     
 def main():
     updater = Updater(token="672161416:AAF1Ln4gg_J4QH2nS9pDpLT-H6x_gsrYJW8", use_context=True)
