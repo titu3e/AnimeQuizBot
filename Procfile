@@ -1,1 +1,1 @@
-bot: python anime_quiz.py
+web: python anime_quiz.py

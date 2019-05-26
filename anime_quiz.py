@@ -20,7 +20,7 @@ def ask(update, context):
     chat_id = update.message.chat_id
     variants = ['Beyond the boundary', 'Charlotte', 'Your name', 'Plastic memories']
     rnd = random.randint(0, 3)
-    bot.send_photo(chat_id=chat_id, photo=open('/home/tukan-king/Pictures/{}.jpg'.format(variants[rnd]), 'rb'))
+##    bot.send_photo(chat_id=chat_id, photo=open('/home/tukan-king/Pictures/{}.jpg'.format(variants[rnd]), 'rb'))
     last = variants[rnd]
     keyboard = [
         [InlineKeyboardButton('Beyond the boundary', callback_data = 'Beyond the boundary'), InlineKeyboardButton('Charlotte', callback_data = 'Charlotte')],
@@ -63,7 +63,7 @@ def clear(update, context):
     update.message.reply_text(text="The score is {}/{} \nDo you want to /continue ? \nOr /clear ?".format(score, count))
     
 def main():
-    updater = Updater(token='672161416:AAF1Ln4gg_J4QH2nS9pDpLT-H6x_gsrYJW8', use_context=True)
+    updater = Updater(token="672161416:AAF1Ln4gg_J4QH2nS9pDpLT-H6x_gsrYJW8", use_context=True)
     dispatcher = updater.dispatcher
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('continue', ask))
