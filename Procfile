@@ -1,1 +1,1 @@
-web: python anime_quiz.py
+web: python3 anime_quiz.py
