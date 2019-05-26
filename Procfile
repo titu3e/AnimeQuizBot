@@ -1,1 +1,1 @@
-python3 anime_quiz.py
+python anime_quiz.py
