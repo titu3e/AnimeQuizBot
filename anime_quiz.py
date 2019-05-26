@@ -5,7 +5,7 @@ import random
 import logging
 import pandas as pd
 
-MAX_TITLES_COUNT = 5722
+MAX_TITLES_COUNT = 415
 
 bot = telegram.Bot(token = '672161416:AAF1Ln4gg_J4QH2nS9pDpLT-H6x_gsrYJW8')
 
@@ -14,7 +14,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # global_update = None
-db = pd.read_csv('anime.csv')
+db = pd.read_csv('anime_greater_8.csv')
 last = {}
 score = {}
 count = {}
@@ -31,9 +31,13 @@ def ask(update, context):
     random_indexes = [0 for i in range(4)]
     title_variants = ['' for i in range(4)]
     image_variants = ['' for i in range(4)]
+    log_variants = ''
     for i in range(4):
         random_indexes[i] = random.randint(0, MAX_TITLES_COUNT)
         title_variants[i] = get_title_from_db(random_indexes[i])
+        title_variants[i] = title_variants[i]
+        if len(title_variants[i]) > 63:
+            title_variants[i] = title_variants[i][:63]
         image_variants[i] = get_image_from_db(random_indexes[i])
         temp = image_variants[i]
         temp_arr = temp.split('/')
@@ -42,6 +46,10 @@ def ask(update, context):
             temp += '/'
             temp += temp_arr[j]
         image_variants[i] = temp
+        log_variants += ', '
+        log_variants += title_variants[i]
+    print('{} variants are {}'.format(chat_id, log_variants))
+    print('')
     correct_answer = random.randint(0, 3)
     bot.send_photo(chat_id = chat_id, photo = image_variants[correct_answer])
     last[chat_id] = title_variants[correct_answer]
@@ -55,7 +63,8 @@ def ask(update, context):
 
 def start(update, context):
     chat_id = update.message.from_user['id']
-    print(chat_id)
+    print('start with chat_id {}'.format(chat_id))
+    print('')
     count[chat_id] = 0
     score[chat_id] = 0
     context.bot.send_message(chat_id=update.message.chat_id, text="Welcome to Anime Quiz. Let's start :)")
@@ -66,10 +75,19 @@ def user_result(update, context):
     global count
     query = update.callback_query
     chat_id = update.callback_query.from_user['id']
-    print(chat_id)
-    print()
+    if chat_id not in last.keys():
+        last[chat_id] = 'Sorry, the answer for this question was dropped by the system (as like as your score)'
+    if chat_id not in score.keys():
+        score[chat_id] = 0
+    if chat_id not in count.keys():
+        count[chat_id] = 0
+    #print(update.callback_query.from_user)
+    print('{} chose {}, correct is {}'.format(chat_id, query.data, last[chat_id]))
+    print('')
+    if chat_id not in count.keys():
+        count[chat_id] = 0
     count[chat_id] += 1
-    if(last[chat_id] == query.data):
+    if last[chat_id] == query.data:
         score[chat_id] += 1
     query.edit_message_text(text="You chose: {} \nThe answer is: {} \nThe score is {}/{} \nDo you want to /continue ? \nOr /clear ?".format(query.data, last[chat_id], score[chat_id], count[chat_id]))
 
