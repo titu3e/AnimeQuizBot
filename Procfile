@@ -1,1 +1,1 @@
-web: python3 anime_quiz.py
+worker: python3 anime_quiz.py
