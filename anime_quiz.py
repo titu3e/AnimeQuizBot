@@ -7,7 +7,7 @@ import pandas as pd
 
 MAX_TITLES_COUNT = 415
 
-bot = telegram.Bot(token = '672161416:AAF1Ln4gg_J4QH2nS9pDpLT-H6x_gsrYJW8')
+bot = telegram.Bot(token = 'TOKEN')
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
