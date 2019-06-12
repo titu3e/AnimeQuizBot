@@ -6,8 +6,9 @@ import logging
 import pandas as pd
 
 MAX_TITLES_COUNT = 415
+TOKEN = 'TOKEN'
 
-bot = telegram.Bot(token = 'TOKEN')
+bot = telegram.Bot(token = TOKEN)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -89,7 +90,7 @@ def user_result(update, context):
     count[chat_id] += 1
     if last[chat_id] == query.data:
         score[chat_id] += 1
-    query.edit_message_text(text="You chose: {} \nThe answer is: {} \nThe score is {}/{} \nDo you want to /continue ? \nOr /clear ?".format(query.data, last[chat_id], score[chat_id], count[chat_id]))
+    query.edit_message_text(text="You chose: {} \n\nThe answer is: {} \n\nThe score is {}/{} \n".format(query.data, last[chat_id], score[chat_id], count[chat_id]))
 
 def clear(update, context):
     global count
@@ -97,10 +98,10 @@ def clear(update, context):
     chat_id = update.message.from_user['id']
     count[chat_id] = 0
     score[chat_id] = 0
-    update.message.reply_text(text="The score is {}/{} \nDo you want to /continue ? \nOr /clear ?".format(score[chat_id], count[chat_id]))
+    update.message.reply_text(text="The score is {}/{}\n".format(score[chat_id], count[chat_id]))
     
 def main():
-    updater = Updater(token="672161416:AAF1Ln4gg_J4QH2nS9pDpLT-H6x_gsrYJW8", use_context=True)
+    updater = Updater(token = TOKEN, use_context = True)
     dispatcher = updater.dispatcher
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('continue', ask))
