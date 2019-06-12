@@ -6,8 +6,9 @@ import logging
 import pandas as pd
 
 MAX_TITLES_COUNT = 415
+TOKEN = 'token'
 
-bot = telegram.Bot(token = '672161416:AAF1Ln4gg_J4QH2nS9pDpLT-H6x_gsrYJW8')
+bot = telegram.Bot(token = TOKEN)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -100,7 +101,7 @@ def clear(update, context):
     update.message.reply_text(text="The score is {}/{} \nDo you want to /continue ? \nOr /clear ?".format(score[chat_id], count[chat_id]))
     
 def main():
-    updater = Updater(token="672161416:AAF1Ln4gg_J4QH2nS9pDpLT-H6x_gsrYJW8", use_context=True)
+    updater = Updater(token=TOKEN, use_context=True)
     dispatcher = updater.dispatcher
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('continue', ask))
